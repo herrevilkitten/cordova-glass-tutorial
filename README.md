@@ -1,26 +1,71 @@
-# Step 3: Exiting the Application
+# Step 4: Where Am I?
 
-In this step, the application will be changed to add an event listener that
-listens for the `swipedown` event.  In Glass, this is a fairly standard event
-for going back or existing the application.  Because of the nature of Cordova
-applications, the default `swipedown` listener is never called.  To get around
-this, we must create our own listener.
+In this step, you will add location and orientation support to the
+application.  First, we must install the Cordova plugins in order to have
+this functionality available in your application.
 
-Open `www/js/index.js` and look for the line
+    cordova plugin add org.apache.cordova.geolocation
 
-        app.receivedEvent('deviceready');
+    cordova plugin add org.apache.cordova.device-orientation
 
-In the same function, after this line, add:
+The documentation for these plugins can be found in the Cordova Plugin
+Repository:
 
-        document.addEventListener('swipedown', function() {
-            if (navigator && navigator.app) {
-                navigator.app.exitApp();
-            } else {
-                console.log("Exiting Application");
-            }
-        });
+    http://plugins.cordova.io/#/package/org.apache.cordova.geolocation
 
-After running the application, a swipe down will now exit the application. In
-the future, if you want to provide support for going "back" within your
-application, you'll need to provide additional logic.  For instance, you may
-push pages onto a stack and only exit the appliation if the stack is empty.
+    http://plugins.cordova.io/#/package/org.apache.cordova.device-orientation
+
+Most plugin functionality is handled by adding objects or functions to the
+global `window` or `navigator` objects.  For instance, the geolocation API adds
+a `geolocation` object:
+
+    navigator.geolocation
+
+In order to monitor our location and orientation, we need to add event
+handlers for each of them. Both geolocation and device-orientation support
+getting the current value and watching for changes over time.
+
+Open up `www/js/index.js`.  Look for the following code:
+
+    bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+
+The additional event handlers will be added after this point:
+
+    onError: function(error) {
+        console.log('An error has occurred: ' + error);
+    },
+
+    onWatchPosition: function(position) {
+        var latitude = position.coords.latitude,
+            longitude = position.coords.longitude;
+
+        console.log('Latitude: ' + latitude + ' Longitude: ' + longitude);
+    },
+
+    onWatchHeading: function(heading) {
+        var magneticHeading = heading.magneticHeading;
+
+        console.log('Magnetic heading: ' + magneticHeading);
+    },
+
+The `onError` handler will be shared by both the location and heading watches.
+`onWatchPosition` will be called when the device detects a position change, but
+it may be throttled.  `onWatchHeading` will be called whenever the device
+orientation changes.
+
+With the handlers set up, we can now call them from within `onDeviceReady`.
+After the `swipedown` handler that you set up in the previous step, add
+the following code:
+
+        // Watch for changes in position
+        navigator.geolocation.watchPosition(app.onWatchPosition, app.onError);
+
+        // Watch for changes in orientation
+        navigator.compass.watchHeading(app.onWatchHeading, app.onError);
+
+Now run the application.  After you attach the Chrome debugger to it, you will
+be able to see the position and orientation changes in the log.
+
+In the next step, we will actually do something with this.
