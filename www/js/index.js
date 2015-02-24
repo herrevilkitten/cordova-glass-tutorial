@@ -28,6 +28,16 @@ var app = {
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
+
+    onExit: function() {
+        console.log('Exiting application');
+        if (navigator.app) {
+            navigator.app.exitApp();
+        } else if (navigator.device) {
+            navigator.device.exitApp();
+        }
+    },
+
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
@@ -35,14 +45,9 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
 
-        document.addEventListener('swipedown', function() {
-            if (navigator && navigator.app) {
-                navigator.app.exitApp();
-            } else {
-                console.log("Exiting Application");
-            }
-        });
+        document.addEventListener('swipedown', app.onExit);
     },
+
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         var parentElement = document.getElementById(id);
