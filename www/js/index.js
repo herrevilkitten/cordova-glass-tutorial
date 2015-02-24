@@ -17,6 +17,13 @@
  * under the License.
  */
 var app = {
+    positionWatcher: 0,
+    headingWatcher: 0,
+
+    latitude: 0,
+    longitude: 0,
+    heading: 0,
+
     // Application Constructor
     initialize: function() {
         this.bindEvents();
@@ -27,6 +34,41 @@ var app = {
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.addEventListener('pause', this.onPause, false);
+        document.addEventListener('resume', this.onResume, false);
+
+        document.addEventListener('swipedown', app.onExit);
+    },
+
+    onExit: function() {
+        app.onPause();
+
+        console.log('Exiting application');
+        if (navigator.app) {
+            navigator.app.exitApp();
+        } else if (navigator.device) {
+            navigator.device.exitApp();
+        }
+    },
+
+    onPause: function() {
+        console.log('Pausing application');
+        if (app.positionWatcher) {
+            console.log('Canceling position watcher:', app.positionWatcher);
+            navigator.geolocation.clearWatch(app.positionWatcher);
+            app.positionWatcher = 0;
+        }
+
+        if (app.headingWatcher) {
+            console.log('Canceling heading watcher:', app.headingWatcher);
+            navigator.compass.clearWatch(app.headingWatcher);
+            app.headingWatcher = 0;
+        }
+    },
+
+    onResume: function() {
+        console.log('Resuming application');
+        app.onDeviceReady();
     },
 
     onError: function(error) {
@@ -53,16 +95,14 @@ var app = {
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
 
-        document.addEventListener('swipedown', function() {
-            if (navigator && navigator.app) {
-                navigator.app.exitApp();
-            } else {
-                console.log("Exiting Application");
-            }
-        });
-
         // Watch for changes in position
-        window.geolocation.watchPosition(app.onWatchPosition, app.onError);
+        if (!app.positionWatcher) {
+            app.positionWatcher = navigator.geolocation.watchPosition(app.onWatchPosition, app.onError);
+        }
+
+        if (!app.headingWatcher) {
+            app.headingWatcher = navigator.compass.watchHeading(app.onWatchHeading, app.onError);
+        }
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
