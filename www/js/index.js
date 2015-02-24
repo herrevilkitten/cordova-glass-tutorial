@@ -28,6 +28,24 @@ var app = {
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
     },
+
+    onError: function(error) {
+        console.log('An error has occurred: ' + error);
+    },
+
+    onWatchPosition: function(position) {
+        var latitude = position.coords.latitude,
+            longitude = position.coords.longitude;
+
+        console.log('Latitude: ' + latitude + ' Longitude: ' + longitude);
+    },
+
+    onWatchHeading: function(heading) {
+        var magneticHeading = heading.magneticHeading;
+
+        console.log('Magnetic heading: ' + magneticHeading);
+    },
+
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
@@ -42,6 +60,9 @@ var app = {
                 console.log("Exiting Application");
             }
         });
+
+        // Watch for changes in position
+        window.geolocation.watchPosition(app.onWatchPosition, app.onError);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
