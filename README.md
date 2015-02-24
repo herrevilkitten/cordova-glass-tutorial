@@ -1,25 +1,26 @@
-# Step 2: Set Up Glass
+# Step 3: Exiting the Application
 
-In this step, the application will be set up to target Google Glass.
-First, run this command from the project root:
+In this step, the application will be changed to add an event listener that
+listens for the `swipedown` event.  In Glass, this is a fairly standard event
+for going back or existing the application.  Because of the nature of Cordova
+applications, the default `swipedown` listener is never called.  To get around
+this, we must create our own listener.
 
-    cordova platform add android
+Open `www/js/index.js` and look for the line
 
-This will add the `android` platform to your project and configure it. After
-this, you need to add the specialized Glass support.  This is done by adding
-the Cordova Google Glass plugin[1] to your project:
+        app.receivedEvent('deviceready');
 
-    cordova plugin add https://github.com/aphex/cordova-glass
+In the same function, after this line, add:
 
-After this, you will need to set up the voice trigger for your application.
-Edit `platforms/android/res/values/glass.xml` and change the following entry.
+        document.addEventListener('swipedown', function() {
+            if (navigator && navigator.app) {
+                navigator.app.exitApp();
+            } else {
+                console.log("Exiting Application");
+            }
+        });
 
-    <string name="app_launch_voice_trigger">hello cordova</string>
-
-For the tutorial, change the `hello cordova` to `glass tutorial`.  At this
-point, you can run the tutorial on your Glass and even start it by speaking
-`glass tutorial` at the Ok Glass prompt.  Unfortunately, exiting the program
-needs to be set up manually and we haven't done that yet.  We'll start on
-that in the next step.
-
-[1] https://github.com/aphex/cordova-glass
+After running the application, a swipe down will now exit the application. In
+the future, if you want to provide support for going "back" within your
+application, you'll need to provide additional logic.  For instance, you may
+push pages onto a stack and only exit the appliation if the stack is empty.
