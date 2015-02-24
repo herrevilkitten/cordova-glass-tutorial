@@ -1,22 +1,25 @@
-# Cordova Glass Tutorial
+# Step 2: Set Up Glass
 
-This tutorial is designed to help you develop Google Glass applications
-using Apache Cordova.  Each part of the tutorial is in a different branch
-in this repository.
+In this step, the application will be set up to target Google Glass.
+First, run this command from the project root:
 
-The `README.md` for one step is designed to bring you to the next step.
+    cordova platform add android
 
-Steps
-* Getting_started (master)
-* Set_up_glass
-* Exiting_the_app
-* Where_am_I
-* A_splash_of_color
+This will add the `android` platform to your project and configure it. After
+this, you need to add the specialized Glass support.  This is done by adding
+the Cordova Google Glass plugin[1] to your project:
 
-## Getting Started
+    cordova plugin add https://github.com/aphex/cordova-glass
 
-The branch is already set up for this step.  If you wanted to do this on your
-own, you should create a new appication using the `cordova` command-line
-interface:
+After this, you will need to set up the voice trigger for your application.
+Edit `platforms/android/res/values/glass.xml` and change the following entry.
 
-    cordova create cordova-glass-tutorial 
+    <string name="app_launch_voice_trigger">hello cordova</string>
+
+For the tutorial, change the `hello cordova` to `glass tutorial`.  At this
+point, you can run the tutorial on your Glass and even start it by speaking
+`glass tutorial` at the Ok Glass prompt.  Unfortunately, exiting the program
+needs to be set up manually and we haven't done that yet.  We'll start on
+that in the next step.
+
+[1] https://github.com/aphex/cordova-glass
