@@ -34,6 +34,14 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+
+        document.addEventListener('swipedown', function() {
+            if (navigator && navigator.app) {
+                navigator.app.exitApp();
+            } else {
+                console.log("Exiting Application");
+            }
+        });
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
